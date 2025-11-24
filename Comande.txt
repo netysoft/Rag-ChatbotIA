@@ -1,0 +1,9 @@
+pour lancer le front et qu'il soit accessible de l'extérieur 
+
+npm run dev -- --host
+
+Attention pour que ce soit accessible de l'extérieur j'ai modifié ChatInterface.tsx  en 'http://176.180.55.219:5000/generate
+
+au lieu de 'http://localhost:5000/generate
+
+et aussi il faut active les 2 regles sur le routeur
