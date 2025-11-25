@@ -147,21 +147,32 @@ def retrieve_relevant_documents(query, texts, faiss_index, model, top_k=5):
 # ---------------------------
 
 def query_llama3(prompt):
+    api_key = "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"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
+
     try:
         response = requests.post(
-            'http://localhost:11434/api/generate',
-            json={
-                'model': 'mistral',
-                'prompt': prompt,
-                'stream': False
-            },
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers=headers,
+            json=payload,
             timeout=120
         )
 
         if response.status_code == 200:
-            result = response.json()
-            return result.get('response', '')
-        return "Erreur API Ollama"
+            data = response.json()
+            return data['choices'][0]['message']['content']
+        else:
+            return f"Erreur API Groq: {response.status_code} {response.text}"
 
     except Exception as e:
         return f"Erreur: {e}"
