@@ -12,7 +12,10 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-CORS(app, origins=["http://localhost:5000"])
+CORS(app, origins=[
+    "http://localhost:5000",
+    "https://app.qrcodecms.com"
+])
 
 
 # ---------------------------
