@@ -39,7 +39,7 @@ function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://176.180.55.219:5000/generate', {
+      const response = await fetch('http://localhost:5000/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

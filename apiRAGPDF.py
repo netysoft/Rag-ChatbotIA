@@ -7,6 +7,7 @@ import faiss
 import os
 import requests
 import csv
+from dotenv import load_dotenv
 
 
 app = Flask(__name__)
@@ -147,7 +148,11 @@ def retrieve_relevant_documents(query, texts, faiss_index, model, top_k=5):
 # ---------------------------
 
 def query_llama3(prompt):
-    api_key = "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"
+
+
+
+    load_dotenv()  # charge .env
+    api_key = os.getenv("GROQ_API_KEY")
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
