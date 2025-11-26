@@ -8,6 +8,7 @@ import os
 import requests
 import csv
 from dotenv import load_dotenv
+import json
 
 
 app = Flask(__name__)
@@ -57,6 +58,49 @@ def load_pdf(file_path):
 
     return text
 
+# ---------------------------
+#   JSON
+# ---------------------------
+
+def load_json_for_rag(file_path):
+    full_text = ""
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Infos du minisite
+    minisite = data.get("minisite", {})
+    for key in ["title", "description"]:
+        if key in minisite:
+            for lang, text in minisite[key].items():
+                full_text += text + "\n"
+
+    # Pages
+    for page in data.get("pages", []):
+        # titres
+        if "title" in page:
+            for lang, text in page["title"].items():
+                full_text += text + "\n"
+
+        # contenu HTML
+        if "content_html" in page:
+            for lang, text in page["content_html"].items():
+                full_text += text + "\n"
+
+        # réponses formulaire
+        form = page.get("form")
+        if form and "responses" in form:
+            for response in form["responses"]:
+                date = response.get("submitted_at", "")
+                full_text += f"Date réponse: {date}\n"
+                for field in response.get("fields", []):
+                    ans = field.get("answer")
+                    if isinstance(ans, dict) and "files" in ans:
+                        full_text += " ".join(ans["files"].values()) + "\n"
+                    elif isinstance(ans, str):
+                        full_text += ans + "\n"
+
+    return full_text
+
 # NEW: Charge tous les PDF d’un dossier
 def load_all_pdfs_in_directory(directory):
     full_text = ""
@@ -92,7 +136,7 @@ def chunk_text(text, chunk_size=500):
 
 
 # ---------------------------
-#   Setup RAG uniquement PDF
+#   Setup RAG (PDF + JSON)
 # ---------------------------
 
 def setup_rag_system(directory_path):
@@ -101,7 +145,21 @@ def setup_rag_system(directory_path):
         # full_text = load_pdf(pdf_path)
         
         # 1) Charger tous les PDF
-        full_text = load_all_pdfs_in_directory(directory_path)
+        # full_text = load_all_pdfs_in_directory(directory_path)
+
+        # 1) Charger soit les pdf soit les json
+        full_text = ""
+
+        for filename in os.listdir(directory_path):
+            path = os.path.join(directory_path, filename)
+            
+            if filename.lower().endswith(".pdf"):
+                print(f"[RAG] Chargement PDF : {filename}")
+                full_text += load_pdf(path) + "\n"
+
+            elif filename.lower().endswith(".json"):
+                print(f"[RAG] Chargement JSON : {filename}")
+                full_text += load_json_for_rag(path) + "\n"
 
         # 2) Découper en segments
         chunks = chunk_text(full_text)
@@ -114,7 +172,7 @@ def setup_rag_system(directory_path):
         dimension = embeddings.shape[1]
         index = faiss.IndexFlatL2(dimension)
         index.add(embeddings)
-        print("RAG mis à jour après nouvel upload !")
+        print("RAG mis à jour !")
         return chunks, index, model
 
     except Exception as e:
@@ -282,9 +340,10 @@ def generate_minisite(minisite_id):
         # Prompt final
         prompt = (
             f"Tu dois répondre en français.\n"
-            f"Contexte issu du PDF :\n{context}\n\n"
+            f"Contexte disponible :\n{context}\n\n"
             f"Question : {text}\n"
             f"Répond de manière détaillée (minimum 5 lignes)."
+            f"Répond de manière concise et précise, en donnant les dates si la question concerne des formulaires."
         )
 
         response = query_mistral(prompt)
