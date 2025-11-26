@@ -67,48 +67,42 @@ def load_json_for_rag(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    def extract_text(field):
+        """Récupère le texte, que ce soit un dict, une liste ou une string"""
+        if isinstance(field, dict):
+            for lang_text in field.values():
+                if isinstance(lang_text, str):
+                    yield lang_text
+                elif isinstance(lang_text, list):
+                    for item in lang_text:
+                        yield str(item)
+        elif isinstance(field, list):
+            for item in field:
+                yield str(item)
+        elif isinstance(field, str):
+            yield field
+
     # Infos du minisite
-    minisite = data.get("minisite", {})
     for key in ["title", "description"]:
-        content = minisite.get(key, {})
-        if isinstance(content, dict):
-            for lang, text in content.items():
-                full_text += text + "\n"
-        elif isinstance(content, list):
-            for item in content:
-                if isinstance(item, str):
-                    full_text += item + "\n"
-                elif isinstance(item, dict):
-                    full_text += " ".join(str(v) for v in item.values()) + "\n"
+        for text in extract_text(data.get("minisite", {}).get(key, {})):
+            full_text += text + "\n"
 
     # Pages
     for page in data.get("pages", []):
-        # titres
-        title = page.get("title", {})
-        if isinstance(title, dict):
-            for lang, text in title.items():
-                full_text += text + "\n"
-        elif isinstance(title, list):
-            for item in title:
-                if isinstance(item, str):
-                    full_text += item + "\n"
+        for text in extract_text(page.get("title", {})):
+            full_text += text + "\n"
+        for text in extract_text(page.get("content_html", {})):
+            full_text += text + "\n"
 
-        # contenu HTML
-        content_html = page.get("content_html", {})
-        if isinstance(content_html, dict):
-            for lang, text in content_html.items():
-                full_text += text + "\n"
-        elif isinstance(content_html, list):
-            for item in content_html:
-                if isinstance(item, str):
-                    full_text += item + "\n"
-                elif isinstance(item, dict):
-                    full_text += " ".join(str(v) for v in item.values()) + "\n"
-
-        # réponses formulaire
+        # Formulaires
         form = page.get("form")
-        if form and "responses" in form:
-            for response in form["responses"]:
+        if form:
+            for text in extract_text(form.get("title", {})):
+                full_text += text + "\n"
+            for text in extract_text(form.get("description", {})):
+                full_text += text + "\n"
+
+            for response in form.get("responses", []):
                 date = response.get("submitted_at", "")
                 full_text += f"Date réponse: {date}\n"
                 for field in response.get("fields", []):
