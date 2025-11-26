@@ -255,7 +255,46 @@ def generate():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
+@app.route('/generate/minisite/<minisite_id>', methods=['POST'])
+def generate_minisite(minisite_id):
+    data = request.json
+    text = data.get('text', '')
+
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+    
+    BASE_STORAGE_PATH = os.getenv("STORAGE_PATH")
+    directory_path = os.path.join(BASE_STORAGE_PATH, str(minisite_id))
+
+    if not os.path.exists(directory_path):
+        return jsonify({"error": f"Directory not found: {directory_path}"}), 404
+
+    global texts, faiss_index, model
+    texts, faiss_index, model = setup_rag_system(directory_path)
+
+    try:
+        # Récupération des chunks pertinents
+        relevant_docs = retrieve_relevant_documents(text, texts, faiss_index, model)
+        context = " ".join(relevant_docs)
+
+        # Prompt final
+        prompt = (
+            f"Tu dois répondre en français.\n"
+            f"Contexte issu du PDF :\n{context}\n\n"
+            f"Question : {text}\n"
+            f"Répond de manière détaillée (minimum 5 lignes)."
+        )
+
+        response = query_mistral(prompt)
+        response = clean_unicode(response)
+
+        return jsonify({"story": response})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/test', methods=['GET'])
 def test():
@@ -277,6 +316,31 @@ def upload_pdf():
     print("RAG mis à jour après nouvel upload !")
     
     return jsonify({"message": "File uploaded successfully"}), 200
+
+
+@app.route('/upload/minisite/<minisite_id>', methods=['POST'])
+def upload_pdf_minisite(minisite_id):
+    if 'pdf' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    
+    file = request.files['pdf']
+
+    BASE_STORAGE_PATH = os.getenv("STORAGE_PATH")
+    directory_path = os.path.join(BASE_STORAGE_PATH, str(minisite_id))
+
+    os.makedirs(directory_path, exist_ok=True)
+
+    # Sauvegarde le PDF dans le dossier du minisite
+    file_path = os.path.join(directory_path, file.filename)
+    file.save(file_path)
+    print(f"Fichier sauvegardé : {file_path}")
+
+    # Mise à jour automatique du RAG pour ce minisite
+    global texts, faiss_index, model
+    texts, faiss_index, model = setup_rag_system(directory_path)
+    print(f"RAG mis à jour pour le minisite {minisite_id} !")
+
+    return jsonify({"message": f"File uploaded successfully to minisite {minisite_id}"}), 200
 
 
 if __name__ == '__main__':
