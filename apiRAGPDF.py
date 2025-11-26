@@ -70,21 +70,40 @@ def load_json_for_rag(file_path):
     # Infos du minisite
     minisite = data.get("minisite", {})
     for key in ["title", "description"]:
-        if key in minisite:
-            for lang, text in minisite[key].items():
+        content = minisite.get(key, {})
+        if isinstance(content, dict):
+            for lang, text in content.items():
                 full_text += text + "\n"
+        elif isinstance(content, list):
+            for item in content:
+                if isinstance(item, str):
+                    full_text += item + "\n"
+                elif isinstance(item, dict):
+                    full_text += " ".join(str(v) for v in item.values()) + "\n"
 
     # Pages
     for page in data.get("pages", []):
         # titres
-        if "title" in page:
-            for lang, text in page["title"].items():
+        title = page.get("title", {})
+        if isinstance(title, dict):
+            for lang, text in title.items():
                 full_text += text + "\n"
+        elif isinstance(title, list):
+            for item in title:
+                if isinstance(item, str):
+                    full_text += item + "\n"
 
         # contenu HTML
-        if "content_html" in page:
-            for lang, text in page["content_html"].items():
+        content_html = page.get("content_html", {})
+        if isinstance(content_html, dict):
+            for lang, text in content_html.items():
                 full_text += text + "\n"
+        elif isinstance(content_html, list):
+            for item in content_html:
+                if isinstance(item, str):
+                    full_text += item + "\n"
+                elif isinstance(item, dict):
+                    full_text += " ".join(str(v) for v in item.values()) + "\n"
 
         # réponses formulaire
         form = page.get("form")
