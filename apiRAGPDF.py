@@ -152,9 +152,6 @@ def retrieve_relevant_documents(query, texts, faiss_index, model, top_k=5):
 # ---------------------------
 
 def query_llama3(prompt):
-
-
-
     load_dotenv()  # charge .env
     api_key = os.getenv("GROQ_API_KEY")
     headers = {
@@ -185,6 +182,44 @@ def query_llama3(prompt):
 
     except Exception as e:
         return f"Erreur: {e}"
+    
+
+# ---------------------------
+#   Appel à Mistral
+# ---------------------------
+
+def query_mistral(prompt):
+    load_dotenv()
+    api_key = os.getenv("MISTRAL_API_KEY")
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "mistral-large-latest",
+        "messages": [
+            {"role": "user", "content": prompt}
+        ]
+    }
+
+    try:
+        response = requests.post(
+            "https://api.mistral.ai/v1/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=120
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            return data['choices'][0]['message']['content']
+        else:
+            return f"Erreur API Mistral: {response.status_code} {response.text}"
+
+    except Exception as e:
+        return f"Erreur: {e}"
 
 
 # ---------------------------
@@ -212,7 +247,8 @@ def generate():
             f"Répond de manière détaillée (minimum 5 lignes)."
         )
 
-        response = query_llama3(prompt)
+        # response = query_llama3(prompt)
+        response = query_mistral(prompt)
         response = clean_unicode(response)
 
         return jsonify({"story": response})
