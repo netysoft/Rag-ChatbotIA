@@ -4,15 +4,15 @@ Un système RAG (Retrieval-Augmented Generation) multi-tenant permettant de cré
 
 ## 📋 Table des matières
 
-- [Fonctionnalités](#fonctionnalités)
-- [Architecture](#architecture)
-- [Prérequis](#prérequis)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Utilisation](#utilisation)
-- [API Endpoints](#api-endpoints)
-- [Intégration Frontend](#intégration-frontend)
-- [Structure des dossiers](#structure-des-dossiers)
+- [Fonctionnalités](#-fonctionnalités)
+- [Architecture](#-architecture)
+- [Prérequis](#-prérequis)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Utilisation](#-utilisation)
+- [API Endpoints](#-api-endpoints)
+- [Intégration Frontend](#-intégration-frontend)
+- [Structure des dossiers](#-structure-des-dossiers)
 
 ## ✨ Fonctionnalités
 
