@@ -355,8 +355,8 @@ def generate_minisite(minisite_id):
             f"Tu dois répondre en français.\n"
             f"Contexte disponible :\n{context}\n\n"
             f"Question : {text}\n"
-            f"Répond de manière détaillée (minimum 5 lignes)."
-            f"Répond de manière concise et précise, en donnant les dates si la question concerne des formulaires."
+            f"Répond de manière concise et précise"
+            f"Répond en donnant les dates au format français si la question concerne des formulaires."
         )
 
         response = query_mistral(prompt)
