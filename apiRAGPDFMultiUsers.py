@@ -205,7 +205,16 @@ def generate():
 
 @app.route('/upload', methods=['POST'])
 def upload_pdf():
-    client_id = request.form.get("client_id")
+    print("=== Nouvelle requête UPLOAD ===")
+    print("Form:", request.form)
+    print("Files:", request.files)
+    
+    client_id = request.args.get("client_id")
+    
+
+    print(f"client_id final: '{client_id}'")
+
+
     
     if not client_id:
         return jsonify({"error": "Missing 'client_id'"}), 400

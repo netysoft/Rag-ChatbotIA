@@ -50,9 +50,10 @@ function PdfUploader() {
 
     const formData = new FormData();
     formData.append('pdf', file);
+    
 
     try {
-      const response = await fetch('http://localhost:5000/upload', {
+      const response = await fetch('http://localhost:5000/upload?client_id=1', {
         method: 'POST',
         body: formData,
       });

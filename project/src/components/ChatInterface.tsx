@@ -44,7 +44,7 @@ function ChatInterface() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: input }),
+        body: JSON.stringify({ text: input, client_id: "1" }),
       });
 
       if (!response.ok) {
@@ -56,7 +56,7 @@ function ChatInterface() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.story || 'Aucune réponse reçue',
+        content: data.answer || 'Aucune réponse reçue',
         timestamp: new Date(),
       };
 
