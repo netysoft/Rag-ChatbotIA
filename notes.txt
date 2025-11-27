@@ -1,0 +1,48 @@
+
+
+
+Pour le test 
+
+-j'ai forcé  dans chatInterface un client_id dans le body de la response
+
+
+
+Et j'ai modifié le content de assistantMessage pour récupérer le content , le RAGMultiUsers n'envoie plus "story" mais "answer"
+
+const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.answer || 'Aucune réponse reçue',
+        timestamp: new Date(),
+      };
+
+
+
+
+
+
+
+
+/****************************
+    try {
+      const response = await fetch('http://localhost:5000/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: input, client_id: "2" }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la requête');
+      }
+
+      const data = await response.json();
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.answer || 'Aucune réponse reçue',
+        timestamp: new Date(),
+      };
+
