@@ -53,7 +53,7 @@ function PdfUploader() {
     
 
     try {
-      const response = await fetch('http://localhost:5000/upload?client_id=1', {
+      const response = await fetch('http://localhost:5000/upload?client_id=2', {
         method: 'POST',
         body: formData,
       });

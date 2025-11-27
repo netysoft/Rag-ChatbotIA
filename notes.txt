@@ -1,10 +1,14 @@
 
 
+Lancer apiRAGPDFMultiUsers.py
 
 Pour le test 
 
--j'ai forcé  dans chatInterface un client_id dans le body de la response
+- dans chatInterface  
 
+j'ai forcé un client_id dans le body de la response
+
+body: JSON.stringify({ text: input, client_id: "2" }),
 
 
 Et j'ai modifié le content de assistantMessage pour récupérer le content , le RAGMultiUsers n'envoie plus "story" mais "answer"
@@ -15,9 +19,6 @@ const assistantMessage: Message = {
         content: data.answer || 'Aucune réponse reçue',
         timestamp: new Date(),
       };
-
-
-
 
 
 
@@ -45,4 +46,10 @@ const assistantMessage: Message = {
         content: data.answer || 'Aucune réponse reçue',
         timestamp: new Date(),
       };
+
+
+- Dans pdfuploader j'ai rajouté un client_id dans l url
+
+const response = await fetch('http://localhost:5000/upload?client_id=1',
+
 

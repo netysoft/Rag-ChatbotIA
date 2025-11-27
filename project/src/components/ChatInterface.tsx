@@ -44,7 +44,7 @@ function ChatInterface() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: input, client_id: "1" }),
+        body: JSON.stringify({ text: input, client_id: "2" }),
       });
 
       if (!response.ok) {
